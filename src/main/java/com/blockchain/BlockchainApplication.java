@@ -8,13 +8,14 @@ public class BlockchainApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BlockchainApplication.class, args);
+		// Mining block
 		// Block genesisBlock = new Block("000000000000000000000000000000000000000000000000000000000000", "Pool of transactions");
 		
 		// System.out.println("Hash: " + genesisBlock.getHash());
 		// System.out.println("Nonce: " + genesisBlock.getNonce());
 
+		// Creating public Key
 		System.out.println(CriptoUtils.getPublicKey()); 
-		//System.out.println(CriptoUtils.getPublicKey("MHcCAQEEIEwyVtplEEwsZoNphLdK6TDJhuwLiVrv+IHmDkBNlQVuoAoGCCqGSM49AwEHoUQDQgAEe6LgV5zwM0hvuhX4hrpnJYofzDrFZZtdcLElZHgbxtpEjpZpgeNq8D1QACIQtwZXtAYdGf1PJkH58V4OE7ka8w=="));
-	}
+			}
 
 }

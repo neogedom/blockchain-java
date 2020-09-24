@@ -1,23 +1,22 @@
 package com.blockchain;
 
 import java.io.UnsupportedEncodingException;
-import java.security.KeyFactory;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECPoint;
 
 public class CriptoUtils {
 
     private static PublicKey publicKey;
-    private static PrivateKey privateKey;
+    // private static PrivateKey privateKey;
 
     public static String toHash256(Object obj) {
         MessageDigest digest = null;
@@ -42,42 +41,49 @@ public class CriptoUtils {
         return buffer.toString();
     }
 
-    public PrivateKey getPrivateKey() {
+    public static String getPublicKey() {
 
-        if (privateKey == null) {
-            getPublicKey();
-        }
-        return privateKey;
+        getPrivateKey();
+        ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+        ECPoint point = ecPublicKey.getW();
+        String sx = adjustTo64(point.getAffineX().toString(16)).toUpperCase();
+        String sy = adjustTo64(point.getAffineY().toString(16)).toUpperCase();
+        String bcPub = "04" + sx + sy;
+        
+        return "bcPub: " + bcPub;
     }
 
-    public static PublicKey getPublicKey() {
+    public static String getPrivateKey() {
 
+        String strPrivateKey = "";
         try {
-            SecureRandom random = SecureRandom.getInstanceStrong();
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
-            keyPairGenerator.initialize(256, random);
+            ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256k1");
+            keyPairGenerator.initialize(ecSpec);
             KeyPair pair = keyPairGenerator.genKeyPair();
-            privateKey = pair.getPrivate();
+            PrivateKey privateKey = pair.getPrivate();
             publicKey = pair.getPublic();
 
-        } catch (NoSuchAlgorithmException e) {
+            ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
+            strPrivateKey =  adjustTo64(ecPrivateKey.getS().toString(16).toUpperCase());
+
+        } catch (GeneralSecurityException e) {
+            
             e.printStackTrace();
         }
 
-        return publicKey;
+        return "s[" + strPrivateKey.length() +"]: " +  strPrivateKey;
     }
 
-    public static PublicKey getPublicKey(String strPrivateKey) {
 
-            try {
-                byte[] signature = Base64.getDecoder().decode(strPrivateKey.getBytes("UTF-8"));
-                EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(signature);                 KeyFactory keyFactory = KeyFactory.getInstance("EC");
-                privateKey = keyFactory.generatePrivate(privateKeySpec);
-                publicKey = keyFactory.generatePublic(privateKeySpec);
-            } catch (InvalidKeySpecException | UnsupportedEncodingException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-        
-        return publicKey;
+
+    private static String adjustTo64(String s) {
+        switch (s.length()) {
+            case 62: return "00" + s;
+            case 63: return "0" + s;
+            case 64: return s;
+            default:
+                throw new IllegalArgumentException("not a valid key: " + s);
+        }
     }
 }
