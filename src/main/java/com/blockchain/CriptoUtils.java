@@ -74,6 +74,7 @@ public class CriptoUtils {
 
     public static byte[] hexStringToByteArray(String s) {
        
+        System.out.println("Aqui: "+ s);
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
