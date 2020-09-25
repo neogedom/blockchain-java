@@ -11,12 +11,12 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECPoint;
 
 public class Wallet {
-    
-    private  ECPrivateKey ecPrivateKey;
-    private  ECPublicKey ecPublicKey;
+
+    private ECPrivateKey ecPrivateKey;
+    private ECPublicKey ecPublicKey;
     private String address;
 
-    public Wallet () {
+    public Wallet() {
         generateKeys();
         this.address = generateAddress();
 
@@ -26,11 +26,13 @@ public class Wallet {
         return adjustTo64(ecPrivateKey.getS().toString(16).toUpperCase());
     }
 
-    public String getPublicKey () {
+    public byte[] getPublicKey() {
         ECPoint point = ecPublicKey.getW();
+
         String sx = adjustTo64(point.getAffineX().toString(16)).toUpperCase();
         String sy = adjustTo64(point.getAffineY().toString(16)).toUpperCase();
-        return "04" + sx + sy;
+        
+        return  CriptoUtils.hexStringToByteArray("04" + sx + sy);
     }
 
     public String getAddress() {
@@ -61,6 +63,7 @@ public class Wallet {
     }
 
     private String generateAddress() {
+        
         byte [] bytes = CriptoUtils.toSHA256(getPublicKey()); //Perform SHA-256 in publicKey
         byte [] bytesAfterRIPE160 = CriptoUtils.toRIPEMD160(bytes); // Perform RIPEMD-160 in SHA-256 result
         byte [] bytesAfterSHA256Twice = CriptoUtils.toSHA256(CriptoUtils.toSHA256(bytesAfterRIPE160)); // Perform SHA-256 twice in RIPE-160 result
@@ -72,8 +75,9 @@ public class Wallet {
             bytes[i] = bytesAfterRIPE160[i];
         }
         for (int i = 0 ; i < 4 ; i++) {
-            bytes[20 + i] = bytesAfterSHA256Twice[i];
+            bytes[21 + i] = bytesAfterSHA256Twice[i];
         }
+       
 
         //Encoding Address using Base58
         address = CriptoUtils.toBase58(bytes);
