@@ -43,6 +43,29 @@ public class CriptoUtils {
         return bytes;
     }
 
+    public static String bufferedHASH256(Object obj) {
+        MessageDigest digest = null;
+        byte[] bytes = null;
+        StringBuffer buffer = null;
+
+        try {
+
+            digest = MessageDigest.getInstance("SHA-256");
+            bytes = digest.digest(obj.toString().getBytes("UTF-8"));
+
+            buffer = new StringBuffer();
+            for (byte b : bytes) {
+                buffer.append(String.format("%02x", b));
+            }
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+
+            e.printStackTrace();
+        }
+
+        return buffer.toString();
+    }
+
 
     public static byte[] toRIPEMD160(byte [] obj) {
         byte[] bytes = null;

@@ -10,7 +10,7 @@ public class Block {
     private String previousHash;
     private String data;
     private String timeStamp;
-    private int nonce;
+    private Integer nonce;
 
     public Block() {
     }
@@ -59,7 +59,6 @@ public class Block {
                 e.printStackTrace();
             }
             minedHash = Hex.encodeHexString(CriptoUtils.toSHA256(blockHashBytes));
-            System.out.println(minedHash);
         } while (!minedHash.substring(0, 4).equals("0000"));
 
         return minedHash;
