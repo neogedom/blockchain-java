@@ -32,7 +32,7 @@ public class Wallet {
         String sx = adjustTo64(point.getAffineX().toString(16)).toUpperCase();
         String sy = adjustTo64(point.getAffineY().toString(16)).toUpperCase();
         
-        return  CriptoUtils.hexStringToByteArray("04" + sx + sy);
+        return  CryptoUtils.hexStringToByteArray("04" + sx + sy);
     }
 
     public String getAddress() {
@@ -64,9 +64,9 @@ public class Wallet {
 
     private String generateAddress() {
         
-        byte [] bytes = CriptoUtils.toSHA256(getPublicKey()); //Perform SHA-256 in publicKey
-        byte [] bytesAfterRIPE160 = CriptoUtils.toRIPEMD160(bytes); // Perform RIPEMD-160 in SHA-256 result
-        byte [] bytesAfterSHA256Twice = CriptoUtils.toSHA256(CriptoUtils.toSHA256(bytesAfterRIPE160)); // Perform SHA-256 twice in RIPE-160 result
+        byte [] bytes = CryptoUtils.toSHA256(getPublicKey()); //Perform SHA-256 in publicKey
+        byte [] bytesAfterRIPE160 = CryptoUtils.toRIPEMD160(bytes); // Perform RIPEMD-160 in SHA-256 result
+        byte [] bytesAfterSHA256Twice = CryptoUtils.toSHA256(CryptoUtils.toSHA256(bytesAfterRIPE160)); // Perform SHA-256 twice in RIPE-160 result
 
         bytes = new byte[25]; // reusing bytes variable to create a checksum
 
@@ -80,7 +80,7 @@ public class Wallet {
        
 
         //Encoding Address using Base58
-        address = CriptoUtils.toBase58(bytes);
+        address = CryptoUtils.toBase58(bytes);
         
         return address;
     }

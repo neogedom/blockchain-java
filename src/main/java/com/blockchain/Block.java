@@ -58,7 +58,7 @@ public class Block {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            minedHash = Hex.encodeHexString(CriptoUtils.toSHA256(blockHashBytes));
+            minedHash = Hex.encodeHexString(CryptoUtils.toSHA256(blockHashBytes));
         } while (!minedHash.substring(0, 4).equals("0000"));
 
         return minedHash;

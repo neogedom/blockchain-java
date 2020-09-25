@@ -8,11 +8,10 @@ import java.security.Security;
 
 import com.google.bitcoin.core.Base58;
 
-import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 // Class containing methods to manage cripto activities
-public class CriptoUtils {
+public class CryptoUtils {
     private static MessageDigest digest = null;
 
 
