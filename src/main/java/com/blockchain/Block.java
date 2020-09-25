@@ -50,7 +50,7 @@ public class Block {
         String minedHash;
         do {
             nonce += 1;
-            minedHash = CriptoUtils.toHash256(data + previousHash + nonce);
+            minedHash = CriptoUtils.toSHA256(data + previousHash + nonce).toString();
         } while (!minedHash.substring(0, 4).equals("0000"));
 
         return minedHash;

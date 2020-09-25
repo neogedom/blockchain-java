@@ -11,45 +11,77 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECPoint;
 
 public class Wallet {
+    
+    private  ECPrivateKey ecPrivateKey;
+    private  ECPublicKey ecPublicKey;
     private String address;
-    private  PublicKey publicKey;
-    private  PrivateKey privateKey;
 
-    public String getPublicKey() {
+    public Wallet () {
+        generateKeys();
+        this.address = generateAddress();
 
-        getPrivateKey();
-        ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
-        ECPoint point = ecPublicKey.getW();
-        String sx = adjustTo64(point.getAffineX().toString(16)).toUpperCase();
-        String sy = adjustTo64(point.getAffineY().toString(16)).toUpperCase();
-        String bcPub = "04" + sx + sy;
-        
-        return bcPub;
     }
 
     public String getPrivateKey() {
+        return adjustTo64(ecPrivateKey.getS().toString(16).toUpperCase());
+    }
 
-        String strPrivateKey = "";
+    public String getPublicKey () {
+        ECPoint point = ecPublicKey.getW();
+        String sx = adjustTo64(point.getAffineX().toString(16)).toUpperCase();
+        String sy = adjustTo64(point.getAffineY().toString(16)).toUpperCase();
+        return "04" + sx + sy;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    private ECPrivateKey generateKeys() {
+
+        ECPrivateKey ecPrivateKey = null;
         try {
+            //Generating Private Key
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
             ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256k1");
             keyPairGenerator.initialize(ecSpec);
             KeyPair pair = keyPairGenerator.genKeyPair();
-            privateKey = pair.getPrivate();
-            publicKey = pair.getPublic();
+            PrivateKey privateKey = pair.getPrivate();
+            PublicKey publicKey = pair.getPublic();
+            ecPrivateKey = (ECPrivateKey) privateKey;
 
-            ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
-            strPrivateKey =  adjustTo64(ecPrivateKey.getS().toString(16).toUpperCase());
-
-        } catch (GeneralSecurityException e) {
+            // Keeping Public Key
+            ecPublicKey = (ECPublicKey) publicKey;
             
+
+        } catch (GeneralSecurityException e) {     
             e.printStackTrace();
         }
-        return "s[" + strPrivateKey.length() +"]: " +  strPrivateKey;
+        return ecPrivateKey;
     }
 
+    private String generateAddress() {
+        byte [] bytes = CriptoUtils.toSHA256(getPublicKey()); //Perform SHA-256 in publicKey
+        byte [] bytesAfterRIPE160 = CriptoUtils.toRIPEMD160(bytes); // Perform RIPEMD-160 in SHA-256 result
+        byte [] bytesAfterSHA256Twice = CriptoUtils.toSHA256(CriptoUtils.toSHA256(bytesAfterRIPE160)); // Perform SHA-256 twice in RIPE-160 result
 
+        bytes = new byte[25]; // reusing bytes variable to create a checksum
 
+        // First 4 bytes of the result of the second hashing is used as the address checksum 
+        for (int i = 0 ; i < bytesAfterRIPE160.length ; i++) {
+            bytes[i] = bytesAfterRIPE160[i];
+        }
+        for (int i = 0 ; i < 4 ; i++) {
+            bytes[20 + i] = bytesAfterSHA256Twice[i];
+        }
+
+        //Encoding Address using Base58
+        address = CriptoUtils.toBase58(bytes);
+        
+        return address;
+    }
+
+    // Support method to standarize key in 64 char
     private String adjustTo64(String s) {
         switch (s.length()) {
             case 62: return "00" + s;
@@ -60,8 +92,5 @@ public class Wallet {
         }
     }
     
-    public String generateAddress(String message) {
-        CriptoUtils.toSHA256(getPublicKey());
-        return address;
-    }
+    
 }

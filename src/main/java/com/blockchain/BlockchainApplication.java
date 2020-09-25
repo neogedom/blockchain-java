@@ -14,8 +14,10 @@ public class BlockchainApplication {
 		// System.out.println("Hash: " + genesisBlock.getHash());
 		// System.out.println("Nonce: " + genesisBlock.getNonce());
 
+
 		// Creating public Key
-		System.out.println(CriptoUtils.getPublicKey()); 
+		System.out.println("Wallet address: " + new Wallet().getAddress()); 
+
 			}
 
 }
